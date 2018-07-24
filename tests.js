@@ -111,7 +111,7 @@ QUnit.module( "Informações sobre notas dos Participantes", function() {
     sistema.adicionarNotaAoParticipante("jmendes@matrix.com", 90);
     sistema.adicionarNotaAoParticipante("cmendes@matrix.com", 70);
 
-    var resultado = sistema.obterMediaDasIdadesDosParticipantes();
+    var resultado = sistema.obterMediaDasNotasDosParticipantes();
     assert.equal( resultado, 80, "média dos participantes");    
   });
 });

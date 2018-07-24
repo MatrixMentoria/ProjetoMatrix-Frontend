@@ -52,7 +52,7 @@ function SistemaCadastro() {
     function adicionarNotaAoParticipante(email, nota){
         //implemente o código necessário
     }
-    function obterMediaDasIdadesDosParticipantes(){
+    function obterMediaDasNotasDosParticipantes(){
         //implemente o código necessário
     }
     function obterTotalDeParticipantes(){
@@ -74,7 +74,7 @@ function SistemaCadastro() {
         buscarParticipantesReprovados,
         obterParticipante,
         adicionarNotaAoParticipante,
-        obterMediaDasIdadesDosParticipantes,
+        obterMediaDasNotasDosParticipantes,
         obterTotalDeParticipantes,
         verificarSeParticipanteEstaAprovado,
         obterQuantidadeDeParticipantesPorSexo    
