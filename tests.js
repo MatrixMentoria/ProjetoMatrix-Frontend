@@ -66,14 +66,6 @@ QUnit.module( "Buscar Participantes", function() {
     assert.equal( joao.sobrenome, "Mendes", "Sobrenome correto");
     assert.equal( joao.idade, 56, "Idade correta");
     assert.equal( joao.sexo, 1, "Sexo Masculino");
-
-    resultados = sistema.buscarParticipantesPorSexo(1);    
-    assert.equal( resultados.length, 1, "Apenas um registro retornado");
-    
-    joao = resultados[0];
-    assert.equal( joao.sobrenome, "Mendes", "Sobrenome correto");
-    assert.equal( joao.idade, 56, "Idade correta");
-    assert.equal( joao.sexo, 1, "Sexo Masculino");
   });
 
   QUnit.test( "buscar por sexo", function( assert ) {
