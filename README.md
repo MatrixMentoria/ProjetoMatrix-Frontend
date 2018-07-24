@@ -46,5 +46,5 @@ Avisos
 - Não altere o nome das funções e nem das propriedades do Objeto;
 - Não apague os testes unitários;
 - Código que não tiver teste perdera pontos;
+- Para rodar os testes unitários, basta abrir o arquivo index.html;
 - Essa é a parte 1 do exercício, sendo assim, quem não fizer essa parte não conseguirá fazer a parte 2.
-
