@@ -1,0 +1,246 @@
+<html lang="en" class="gr__getbootstrap_com">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>Sistema para participante</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="./recursos/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <!-- <link href="form-validation.css" rel="stylesheet"> -->
+</head>
+
+<body class="bg-light" data-gr-c-s-loaded="true">
+
+  <div class="container">
+    <div class="py-5 text-center">
+      <img class="d-block mx-auto mb-4" src="./recursos/bootstrap-solid.svg" alt="" width="72" height="72">
+      <h2>Controle de participantes</h2>
+      <p class="lead">Resolução do exercicio</p>
+    </div>
+
+    <div class="row">
+      <div class="col-md-8 order-md-1">
+        <!-- <h4 class="mb-3">Billing address</h4> -->
+        <form id="formulario" class="needs-validation" novalidate="">
+          <!-- como é utilizado somente um formulário, essa variavel controla quando é criação e quando é edição -->
+          <input type="hidden" id="atualizacao" value="false">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="nome">Nome</label>
+              <input type="text" class="form-control" id="nome" placeholder="" value="" required="">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="sobrenome">Sobrenome</label>
+              <input type="text" class="form-control" id="sobrenome" placeholder="" value="" required="">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="email">Email</label>
+            <input type="email" class="form-control" id="email" placeholder="you@example.com" required="">
+          </div>
+          <div class="mb-3">
+            <label for="idade">Idade</label>
+            <input type="number" class="form-control" id="idade" value="" required="">
+          </div>
+          <div class="mb-3">
+            <label for="nota">Nota</label>
+            <input type="number" class="form-control" id="nota" value="" required="">
+          </div>
+          <div class="mb-3">
+            <label for="sexo">Sexo</label>
+            <select class="custom-select d-block w-100" id="sexo" required="">
+              <option value="">Selecione...</option>
+              <option value="1">Masculino</option>
+              <option value="2">Feminino</option>
+            </select>
+          </div>
+          <hr class="mb-4">
+          <button class="btn btn-primary btn-lg btn-block" type="submit">Salvar</button>
+        </form>
+      </div>
+
+    </div>
+
+    <div class="row">
+      <div class="col-md-8 order-md-2 mb-4">
+        <h4 class="d-flex justify-content-between align-items-center mb-3">
+          <span class="text-muted">Participantes</span>
+          <span class="badge badge-secondary badge-pill total_participantes">{{total_participantes}}</span>
+        </h4>
+        <!-- esse elemento irá receber os participantes -->
+        <ul class="list-group mb-3">
+        </ul>
+      </div>
+    </div>
+
+
+    <footer class="my-5 pt-5 text-muted text-center text-small">
+      <p class="mb-1">© 2017-2018 Company Name</p>
+      <ul class="list-inline">
+        <li class="list-inline-item">
+          <a href="#">Privacy</a>
+        </li>
+        <li class="list-inline-item">
+          <a href="#">Terms</a>
+        </li>
+        <li class="list-inline-item">
+          <a href="#">Support</a>
+        </li>
+      </ul>
+    </footer>
+  </div>
+
+  <!-- Bootstrap core JavaScript
+    ================================================== -->
+  <!-- Placed at the end of the document so the pages load faster -->
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+    crossorigin="anonymous"></script>
+  <script>window.jQuery || document.write('<script src="./recursos/jquery-slim.min.js"><\/script>')</script>
+  <script src="./recursos/popper.min.js"></script>
+  <script src="./recursos/bootstrap.min.js"></script>
+  <script src="./recursos/holder.min.js"></script>
+  <!-- é uma boa prática deixar os arquivos javascript no final do body -->
+  <script src="./sistema.js"></script>
+  <script src="./armazenamento.js"></script>
+  <script>
+    // instacia o sistema cadastro
+    var sistema = new SistemaCadastro();
+
+    // esse objeto funciona como um dicionario, já que usamos o número 1 e 2 para representar as opções
+    const SEXO = {
+      '1': 'Masculino',
+      '2': 'Feminino'
+    };
+
+    // essa função é chamada quando clicamos no link Editar. passamos o email do participante como argumento para essa função
+    // ela pega os dados do participante, pega o elemento formulário e popula os campos do formulário
+    function editar(email) {
+      var participante = sistema.obterParticipante(email);
+      var form = document.querySelector("#formulario");
+
+      form.nome.value = participante.nome;
+      form.sobrenome.value = participante.sobrenome;
+      form.email.value = participante.email;
+      form.idade.value = participante.idade;
+      form.sexo.value = participante.sexo;
+      form.nota.value = participante.nota;
+
+      //não pode alterar email por ser utilizado como chave primária
+      form.email.disabled = true;
+
+      //para as funções que cuidam da manipulação dos dados no html saberem quando o formulário está em modo de edição ou criação
+      form.atualizacao.value = true;
+    }
+
+    function excluir(email) {
+      sistema.removerParticipante(email);
+      //forçar a página ser recorregada depois da exclusão
+      window.location.reload(true);
+    }
+
+    function carregarListaDeParticipantes() {
+      //pegar o elemento html onde mostra a listagem dos participantes.
+      var listaDeParticipantesHTML = document.querySelector('.list-group');
+
+      var participantes = sistema.obterParticipantes();
+
+      document.querySelector(".total_participantes").innerHTML = participantes.length;
+
+      participantes.forEach(participante => {
+        var htmlItem = templateItemHtml
+          .replace("{{nome_participante}}", `${participante.nome} ${participante.sobrenome}`)
+          .replace("{{info_participante}}", `${participante.idade} de idade, sexo ${SEXO[participante.sexo]}, email: ${participante.email}, tirou ${participante.nota}`)
+          .replace("{{email_participante}}", participante.email)
+          .replace("{{email_participante}}", participante.email);
+
+        listaDeParticipantesHTML.insertAdjacentHTML('beforeend', htmlItem);
+      });
+    }
+
+    //template utilizado para fazer o binding dos dados do participante.
+    //Foi usado um identificador {{id}} para realizar as substituições de maneira bem simples.
+    var templateItemHtml = '<li class="list-group-item d-flex justify-content-between lh-condensed">' +
+      '<div><h6 class="my-0">{{nome_participante}}</h6><small class="text-muted">{{info_participante}}</small></div>' +
+      '<span class="text-muted"><a href="javascript:void(0)" onclick="editar(\'{{email_participante}}\')">Editar</a> | ' +
+      '<a href="javascript:void(0)" onclick="excluir(\'{{email_participante}}\')">Excluir</a> </span></li>';
+
+    // Example starter JavaScript for disabling form submissions if there are invalid fields
+    (function () {
+      'use strict';
+
+      window.addEventListener('load', function () {
+        
+        carregarListaDeParticipantes();
+
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        var forms = document.getElementsByClassName('needs-validation');
+
+        // Loop over them and prevent submission
+        var validation = Array.prototype.filter.call(forms, function (form) {
+          form.addEventListener('submit', function (event) {
+
+            if (form.checkValidity() === false) {
+
+              event.preventDefault();
+              event.stopPropagation();
+
+            } else {
+              //usando o try conseguimos capturar o erro que ocorre quando o participante já existe
+              try {
+                //utilização do elemento de controle
+                if (JSON.parse(form.atualizacao.value)) {
+
+                  sistema.atualizarParticipante(
+                    form.nome.value,
+                    form.sobrenome.value,
+                    form.email.value,
+                    form.idade.value,
+                    form.sexo.value,
+                    form.nota.value
+                  );
+
+                } else {
+
+                  sistema.adicionarParticipante(
+                    form.nome.value,
+                    form.sobrenome.value,
+                    form.email.value,
+                    form.idade.value,
+                    form.sexo.value
+                  );
+
+                  sistema.adicionarNotaAoParticipante(
+                    form.email.value,
+                    form.nota.value
+                  );
+
+                }
+                
+                window.location.reload(true);
+
+              } catch (e) {
+                //interrompe o ciclo do evento de submit
+                event.preventDefault();
+                event.stopPropagation();
+                alert(e.message);
+              }
+            }
+
+            form.classList.add('was-validated');
+
+          }, false);
+        });
+      }, false);
+    })();
+  </script>
+
+
+</body>
+
+</html>
