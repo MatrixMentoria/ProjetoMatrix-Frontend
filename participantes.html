@@ -108,9 +108,17 @@
   <!-- é uma boa prática deixar os arquivos javascript no final do body -->
   <script src="./sistema.js"></script>
   <script src="./armazenamento.js"></script>
+
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
   <script>
     // instacia o sistema cadastro
     var sistema = new SistemaCadastro();
+
+    axios.get("http://matrix.avalie.net/api/participantes")
+      .then((res) => {
+        alert(res);
+      })
 
     // esse objeto funciona como um dicionario, já que usamos o número 1 e 2 para representar as opções
     const SEXO = {
