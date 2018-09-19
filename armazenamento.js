@@ -51,7 +51,10 @@ function Armazenamento(key){
     }
 
     function obterTodosOsItens(){
-        return deserializar();
+        //return deserializar();
+        return new Promise((resolve, reject) => {
+            resolve(deserializar());
+        });
     }
 
     function deserializar(){

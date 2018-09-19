@@ -30,6 +30,7 @@
         <form id="formulario" class="needs-validation" novalidate="">
           <!-- como é utilizado somente um formulário, essa variavel controla quando é criação e quando é edição -->
           <input type="hidden" id="atualizacao" value="false">
+          <input type="hidden" id="id" value="false">
           <div class="row">
             <div class="col-md-6 mb-3">
               <label for="nome">Nome</label>
@@ -107,7 +108,8 @@
   <script src="./recursos/holder.min.js"></script>
   <!-- é uma boa prática deixar os arquivos javascript no final do body -->
   <script src="./sistema.js"></script>
-  <script src="./armazenamento.js"></script>
+  <!-- <script src="./armazenamento.js"></script> -->
+  <script src="./armazenamentoHttp.js"></script>
 
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
@@ -115,10 +117,6 @@
     // instacia o sistema cadastro
     var sistema = new SistemaCadastro();
 
-    axios.get("http://matrix.avalie.net/api/participantes")
-      .then((res) => {
-        alert(res);
-      })
 
     // esse objeto funciona como um dicionario, já que usamos o número 1 e 2 para representar as opções
     const SEXO = {
@@ -132,6 +130,7 @@
       var participante = sistema.obterParticipante(email);
       var form = document.querySelector("#formulario");
 
+      form.id.value = participante.id;
       form.nome.value = participante.nome;
       form.sobrenome.value = participante.sobrenome;
       form.email.value = participante.email;
@@ -146,44 +145,44 @@
       form.atualizacao.value = true;
     }
 
-    function excluir(email) {
-      sistema.removerParticipante(email);
-      //forçar a página ser recorregada depois da exclusão
-      window.location.reload(true);
+    function excluir(id) {
+      sistema.removerParticipante(id)
+        .then(participante => window.location.reload(true));
     }
 
     function carregarListaDeParticipantes() {
       //pegar o elemento html onde mostra a listagem dos participantes.
       var listaDeParticipantesHTML = document.querySelector('.list-group');
 
-      var participantes = sistema.obterParticipantes();
+      sistema.obterParticipantes()
+        .then(function (participantes) {
+          document.querySelector(".total_participantes").innerHTML = participantes.length;
 
-      document.querySelector(".total_participantes").innerHTML = participantes.length;
+          participantes.forEach(participante => {
+            var htmlItem = templateItemHtml
+              .replace("{{nome_participante}}", `${participante.nome} ${participante.sobrenome}`)
+              .replace("{{info_participante}}", `${participante.idade} de idade, sexo ${SEXO[participante.sexo]}, email: ${participante.email}, tirou ${participante.nota}`)
+              .replace("{{id_participante}}", participante.id)
+              .replace("{{id_participante}}", participante.id);
 
-      participantes.forEach(participante => {
-        var htmlItem = templateItemHtml
-          .replace("{{nome_participante}}", `${participante.nome} ${participante.sobrenome}`)
-          .replace("{{info_participante}}", `${participante.idade} de idade, sexo ${SEXO[participante.sexo]}, email: ${participante.email}, tirou ${participante.nota}`)
-          .replace("{{email_participante}}", participante.email)
-          .replace("{{email_participante}}", participante.email);
-
-        listaDeParticipantesHTML.insertAdjacentHTML('beforeend', htmlItem);
-      });
+            listaDeParticipantesHTML.insertAdjacentHTML('beforeend', htmlItem);
+          });
+        });
     }
 
     //template utilizado para fazer o binding dos dados do participante.
     //Foi usado um identificador {{id}} para realizar as substituições de maneira bem simples.
     var templateItemHtml = '<li class="list-group-item d-flex justify-content-between lh-condensed">' +
       '<div><h6 class="my-0">{{nome_participante}}</h6><small class="text-muted">{{info_participante}}</small></div>' +
-      '<span class="text-muted"><a href="javascript:void(0)" onclick="editar(\'{{email_participante}}\')">Editar</a> | ' +
-      '<a href="javascript:void(0)" onclick="excluir(\'{{email_participante}}\')">Excluir</a> </span></li>';
+      '<span class="text-muted"><a href="javascript:void(0)" onclick="editar(\'{{id_participante}}\')">Editar</a> | ' +
+      '<a href="javascript:void(0)" onclick="excluir(\'{{id_participante}}\')">Excluir</a> </span></li>';
 
     // Example starter JavaScript for disabling form submissions if there are invalid fields
     (function () {
       'use strict';
 
       window.addEventListener('load', function () {
-        
+
         carregarListaDeParticipantes();
 
         // Fetch all the forms we want to apply custom Bootstrap validation styles to
@@ -200,43 +199,33 @@
 
             } else {
               //usando o try conseguimos capturar o erro que ocorre quando o participante já existe
-              try {
-                //utilização do elemento de controle
-                if (JSON.parse(form.atualizacao.value)) {
+              event.preventDefault();
+              event.stopPropagation();
 
-                  sistema.atualizarParticipante(
-                    form.nome.value,
-                    form.sobrenome.value,
-                    form.email.value,
-                    form.idade.value,
-                    form.sexo.value,
-                    form.nota.value
-                  );
+              //utilização do elemento de controle
+              if (JSON.parse(form.atualizacao.value)) {
 
-                } else {
-
-                  sistema.adicionarParticipante(
-                    form.nome.value,
-                    form.sobrenome.value,
-                    form.email.value,
-                    form.idade.value,
-                    form.sexo.value
-                  );
-
-                  sistema.adicionarNotaAoParticipante(
-                    form.email.value,
-                    form.nota.value
-                  );
-
-                }
-                
-                window.location.reload(true);
-
-              } catch (e) {
-                //interrompe o ciclo do evento de submit
-                event.preventDefault();
-                event.stopPropagation();
-                alert(e.message);
+                sistema.atualizarParticipante(
+                  form.nome.value,
+                  form.sobrenome.value,
+                  form.email.value,
+                  form.idade.value,
+                  form.sexo.value,
+                  form.nota.value
+                );
+              } else {
+                sistema.adicionarParticipante(
+                  form.nome.value,
+                  form.sobrenome.value,
+                  form.email.value,
+                  form.idade.value,
+                  form.sexo.value,
+                  form.nota.value
+                )
+                  .then(item => {
+                    window.location.reload(true);
+                  })
+                  .catch(msg => alert(msg))
               }
             }
 
